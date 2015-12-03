@@ -54,7 +54,7 @@ unsigned int liveCells;
 unsigned int speedDly = 64;
 unsigned char speedNum = 6;
 
-boolean soundOn = 0;
+boolean soundOn = false;
 unsigned int lastTone = 0;
 
 long randSeed = 42; // The answer to life, the universe and everything...
