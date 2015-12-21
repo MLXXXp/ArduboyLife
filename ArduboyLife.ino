@@ -283,7 +283,7 @@ void showInfo() {
   uint8_t saveBuf[LIFEWIDTH * 3]; // screen buffer save area
 
   memcpy(saveBuf, grid, sizeof saveBuf);
-  memset(grid, 0,  sizeof saveBuf);
+  memset(grid, 0, sizeof saveBuf);
 
   aboy.setCursor(0, 0);
   aboy.print("Speed ");
