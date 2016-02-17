@@ -62,7 +62,7 @@ long randSeed = 42; // The answer to life, the universe and everything...
 Arduboy aboy;
 
 void setup() {
-  aboy.start();
+  aboy.begin();
   aboy.clearDisplay();
   grid = (uint8_t (*)[LIFEWIDTH]) aboy.getBuffer();
 
@@ -349,7 +349,7 @@ void playTone() {
 boolean waitRelease(uint8_t button) {
   showInfo();
   delay(debounceWait);
-  while (aboy.not_pressed(button) == false) {
+  while (aboy.notPressed(button) == false) {
     if (((button == BTN_SLOWER) || (button == BTN_FASTER)) &&
          aboy.pressed(BTN_SLOWER + BTN_FASTER)) {
       return false;
