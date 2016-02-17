@@ -24,8 +24,6 @@ THE SOFTWARE.
 // Conway's Game Of Life for the Arduboy
 // -------------------------------------
 
-#include <SPI.h>
-#include <EEPROM.h>
 #include <Arduboy.h>
 
 // Width and height of the screen in pixels (one pixel per cell)
@@ -62,8 +60,8 @@ long randSeed = 42; // The answer to life, the universe and everything...
 Arduboy aboy;
 
 void setup() {
-  aboy.start();
-  aboy.clearDisplay();
+  aboy.begin();
+  aboy.clear();
   grid = (uint8_t (*)[LIFEWIDTH]) aboy.getBuffer();
 
   // Display the intro screen
@@ -95,7 +93,7 @@ void setup() {
 }
 
 void loop() {
-  switch (aboy.getInput()) {
+  switch (aboy.buttonsState()) {
     case BTN_PAUSE:
       pauseGame();
       break;
@@ -214,7 +212,7 @@ void goFaster() {
 void genGrid(long seed) {
   int numChars;
 
-  aboy.clearDisplay();
+  aboy.clear();
   randomSeed(seed);
   numChars = random(10, 100);
   for (int c = 0; c <= numChars; c++) {
@@ -242,7 +240,7 @@ void nextStep() {
 
 // Display the button help screen
 void showHelp() {
-  aboy.clearDisplay();
+  aboy.clear();
 
   aboy.drawChar(47, 11, 0x1f, 1, 0, 1);
   aboy.drawChar(43, 15, 0x10, 1, 0, 1);
@@ -349,7 +347,7 @@ void playTone() {
 boolean waitRelease(uint8_t button) {
   showInfo();
   delay(debounceWait);
-  while (aboy.not_pressed(button) == false) {
+  while (aboy.notPressed(button) == false) {
     if (((button == BTN_SLOWER) || (button == BTN_FASTER)) &&
          aboy.pressed(BTN_SLOWER + BTN_FASTER)) {
       return false;
@@ -365,7 +363,7 @@ boolean waitRelease(uint8_t button) {
 void delayPoll(unsigned long msDelay) {
   unsigned long waitTime = millis() + msDelay;
 
-  while (((long) (millis() - waitTime) < 0) && (aboy.getInput() == 0)) {}
+  while (((long) (millis() - waitTime) < 0) && (aboy.buttonsState() == 0)) {}
 }
 
 //------------------------------------------------------------
