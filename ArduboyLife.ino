@@ -1,5 +1,9 @@
+// -------------------------------------
+// Conway's Game Of Life for the Arduboy
+// -------------------------------------
+
 /*
-Copyright (c) 2015 Scott Allen
+Copyright (c) 2017 Scott Allen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +24,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// -------------------------------------
-// Conway's Game Of Life for the Arduboy
-// -------------------------------------
-
-#include <Arduboy.h>
+#include <Arduboy2.h>
+#include <ArduboyTones.h>
 
 // Width and height of the screen in pixels (one pixel per cell)
 #define LIFEWIDTH WIDTH
@@ -52,33 +53,36 @@ unsigned int liveCells;
 unsigned int speedDly = 64;
 unsigned char speedNum = 6;
 
-boolean soundOn = false;
 unsigned int lastTone = 0;
 
 long randSeed = 42; // The answer to life, the universe and everything...
 
-Arduboy aboy;
+Arduboy2 arduboy;
+ArduboyTones sound(arduboy.audio.enabled);
+
+unsigned int lifeIterate(uint8_t grid[][LIFEWIDTH]);
 
 void setup() {
-  aboy.begin();
-  aboy.clear();
-  grid = (uint8_t (*)[LIFEWIDTH]) aboy.getBuffer();
+  arduboy.begin();
+  arduboy.audio.off();
+  arduboy.clear();
+  grid = (uint8_t (*)[LIFEWIDTH]) arduboy.getBuffer();
 
   // Display the intro screen
-  aboy.setTextSize(2);
-  aboy.setCursor(23, 2);
-  aboy.print("ARDUBOY");
-  aboy.setTextSize(1);
-  aboy.setCursor(40, 23);
-  aboy.print("CONWAY'S");
-  aboy.setCursor(43, 35);
-  aboy.print("Game of");
-  aboy.setTextSize(2);
-  aboy.setCursor(41, 48);
-  aboy.print("LIFE");
-  aboy.setTextSize(1);
+  arduboy.setTextSize(2);
+  arduboy.setCursor(23, 2);
+  arduboy.print(F("ARDUBOY"));
+  arduboy.setTextSize(1);
+  arduboy.setCursor(40, 23);
+  arduboy.print(F("CONWAY'S"));
+  arduboy.setCursor(43, 35);
+  arduboy.print(F("Game of"));
+  arduboy.setTextSize(2);
+  arduboy.setCursor(41, 48);
+  arduboy.print(F("LIFE"));
+  arduboy.setTextSize(1);
 
-  aboy.display();
+  arduboy.display();
   delayPoll(3000);
 
   // Display the button help screen.
@@ -89,11 +93,11 @@ void setup() {
   liveCells = countCells();
   delayPoll(8000);
 
-  aboy.initRandomSeed();
+  arduboy.initRandomSeed();
 }
 
 void loop() {
-  switch (aboy.buttonsState()) {
+  switch (arduboy.buttonsState()) {
     case BTN_PAUSE:
       pauseGame();
       break;
@@ -175,7 +179,7 @@ void goSlower() {
   if (waitRelease(BTN_SLOWER) == false) {
     speedNum = lastSpeedNum;
     speedDly = lastspeedDly;
-    soundOn = !soundOn;
+    arduboy.audio.toggle();
     waitRelease(BTN_SLOWER + BTN_FASTER);
   }
 }
@@ -201,7 +205,7 @@ void goFaster() {
   if (waitRelease(BTN_FASTER) == false) {
     speedNum = lastSpeedNum;
     speedDly = lastspeedDly;
-    soundOn = !soundOn;
+    arduboy.audio.toggle();
     waitRelease(BTN_FASTER + BTN_SLOWER);
   }
 }
@@ -212,17 +216,17 @@ void goFaster() {
 void genGrid(long seed) {
   int numChars;
 
-  aboy.clear();
+  arduboy.clear();
   randomSeed(seed);
   numChars = random(10, 100);
   for (int c = 0; c <= numChars; c++) {
-    aboy.drawChar(random(LIFEWIDTH - 1 - 6), random(LIFEHEIGHT - 1 - 8),
+    arduboy.drawChar(random(LIFEWIDTH - 1 - 6), random(LIFEHEIGHT - 1 - 8),
                   random(1, 255), 1, 0, 1);
   }
-  aboy.display();
+  arduboy.display();
   stepCount = 0;
   liveCells = countCells();
-  if (soundOn) {
+  if (arduboy.audio.enabled()) {
     lastTone = 0;
     playTone();
   }
@@ -231,48 +235,48 @@ void genGrid(long seed) {
 // Iterate and display the next generation
 void nextStep() {
   liveCells = lifeIterate(grid);
-  aboy.display();
+  arduboy.display();
   stepCount++;
-  if (soundOn) {
+  if (arduboy.audio.enabled()) {
     playTone();
   }
 }
 
 // Display the button help screen
 void showHelp() {
-  aboy.clear();
+  arduboy.clear();
 
-  aboy.drawChar(47, 11, 0x1f, 1, 0, 1);
-  aboy.drawChar(43, 15, 0x10, 1, 0, 1);
-  aboy.drawChar(47, 19, 0x1e, 1, 0, 1);
-  aboy.drawChar(51, 15, 0x11, 1, 0, 1);
+  arduboy.drawChar(47, 11, 0x1f, 1, 0, 1);
+  arduboy.drawChar(43, 15, 0x10, 1, 0, 1);
+  arduboy.drawChar(47, 19, 0x1e, 1, 0, 1);
+  arduboy.drawChar(51, 15, 0x11, 1, 0, 1);
 
-  aboy.setCursor(32, 3);
-  aboy.print("FASTER");
-  aboy.setCursor(6, 15);
-  aboy.print("REPLAY");
-  aboy.setCursor(58, 15);
-  aboy.print("NEW");
-  aboy.setCursor(32, 27);
-  aboy.print("SLOWER");
+  arduboy.setCursor(32, 3);
+  arduboy.print(F("FASTER"));
+  arduboy.setCursor(6, 15);
+  arduboy.print(F("REPLAY"));
+  arduboy.setCursor(58, 15);
+  arduboy.print(F("NEW"));
+  arduboy.setCursor(32, 27);
+  arduboy.print(F("SLOWER"));
 
-  aboy.drawFastHLine(69, 6, 19, 1);
-  aboy.drawFastHLine(69, 30, 19, 1);
-  aboy.drawFastVLine(88, 6, 25, 1);
-  aboy.drawFastHLine(89, 18, 5, 1);
+  arduboy.drawFastHLine(69, 6, 19, 1);
+  arduboy.drawFastHLine(69, 30, 19, 1);
+  arduboy.drawFastVLine(88, 6, 25, 1);
+  arduboy.drawFastHLine(89, 18, 5, 1);
 
-  aboy.setCursor(96, 15);
-  aboy.print("SOUND");
+  arduboy.setCursor(96, 15);
+  arduboy.print(F("SOUND"));
 
-  aboy.setCursor(92, 42);
-  aboy.print("RUN");
-  aboy.setCursor(28, 53);
-  aboy.print("PAUSE / STEP");
+  arduboy.setCursor(92, 42);
+  arduboy.print(F("RUN"));
+  arduboy.setCursor(28, 53);
+  arduboy.print(F("PAUSE / STEP"));
 
-  aboy.fillCircle(115, 45, 4, 1);
-  aboy.fillCircle(105, 56, 4, 1);
+  arduboy.fillCircle(115, 45, 4, 1);
+  arduboy.fillCircle(105, 56, 4, 1);
 
-  aboy.display();
+  arduboy.display();
 }
 
 // Display the game status.
@@ -283,30 +287,30 @@ void showInfo() {
   memcpy(saveBuf, grid, sizeof saveBuf);
   memset(grid, 0, sizeof saveBuf);
 
-  aboy.setCursor(0, 0);
-  aboy.print("Speed ");
-  aboy.print(speedNum);
-  aboy.setCursor(72, 0);
-  aboy.print("Sound ");
-  if (soundOn) {
-    aboy.println("ON");
+  arduboy.setCursor(0, 0);
+  arduboy.print(F("Speed "));
+  arduboy.print(speedNum);
+  arduboy.setCursor(72, 0);
+  arduboy.print(F("Sound "));
+  if (arduboy.audio.enabled()) {
+    arduboy.println(F("ON"));
   }
   else {
-    aboy.println("OFF");
+    arduboy.println(F("OFF"));
   }
-  aboy.print("Cells ");
-  aboy.print(liveCells);
-  aboy.setCursor(84, 8);
+  arduboy.print(F("Cells "));
+  arduboy.print(liveCells);
+  arduboy.setCursor(84, 8);
   if (paused) {
-    aboy.println("PAUSED");
+    arduboy.println(F("PAUSED"));
   }
   else {
-    aboy.println("RUNNING");
+    arduboy.println(F("RUNNING"));
   }
-  aboy.print("Step  ");
-  aboy.print(stepCount);
+  arduboy.print(F("Step  "));
+  arduboy.print(stepCount);
 
-  aboy.display();
+  arduboy.display();
   memcpy(grid, saveBuf, sizeof saveBuf);
 }
 
@@ -331,7 +335,7 @@ void playTone() {
   unsigned int newTone;
 
   if ((newTone = (liveCells * 3 + 20)) != lastTone) {
-    aboy.tunes.tone(newTone, 2100);
+    sound.tone(newTone, 2100);
     lastTone = newTone;
   }
 }
@@ -347,14 +351,14 @@ void playTone() {
 boolean waitRelease(uint8_t button) {
   showInfo();
   delay(debounceWait);
-  while (aboy.notPressed(button) == false) {
+  while (arduboy.notPressed(button) == false) {
     if (((button == BTN_SLOWER) || (button == BTN_FASTER)) &&
-         aboy.pressed(BTN_SLOWER + BTN_FASTER)) {
+         arduboy.pressed(BTN_SLOWER + BTN_FASTER)) {
       return false;
     }
   }
   delay(debounceWait);
-  aboy.display();
+  arduboy.display();
   return true;
 }
 
@@ -363,7 +367,7 @@ boolean waitRelease(uint8_t button) {
 void delayPoll(unsigned long msDelay) {
   unsigned long waitTime = millis() + msDelay;
 
-  while (((long) (millis() - waitTime) < 0) && (aboy.buttonsState() == 0)) {}
+  while (((long) (millis() - waitTime) < 0) && (arduboy.buttonsState() == 0)) {}
 }
 
 //------------------------------------------------------------

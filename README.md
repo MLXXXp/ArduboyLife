@@ -36,11 +36,12 @@ If sound is enabled, a tone will be generated that is proportional to the number
 
 ## Required Libraries
 
-[Arduboy.h](https://github.com/Arduboy/Arduboy)
+[Arduboy2](https://github.com/Arduboy/Arduboy)
+[ArduboyTones](https://github.com/MLXXXp/ArduboyTones)
 
 ## License
 
-Copyright (c) 2015 Scott Allen
+Copyright (c) 2017 Scott Allen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
