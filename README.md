@@ -12,6 +12,12 @@ Each pixel is a cell. Only the torus type finite grid is implemented (The left e
 
 [Video on YouTube](https://youtu.be/tmZ1W80oE4M)
 
+### NOTE
+
+This sketch double buffers the display image and therefore uses a large amount of RAM. It’s likely to be affected by a bootloader conflict problem, causing issues when trying to upload a new sketch after ArduboyLife has been loaded.
+
+Try holding down the UP button when powering up and plugging in your Arduboy. This will enter *flashlight* mode. The RGB LED and display will light up white. (If you have one of the later Kickstarter Arduboys, with the RGB LED installed wrong, then the RGB LED will not turn on but if the display goes white then you’re probably in *flashlight* mode.) You should then be able to load a new sketch.
+
 ## Usage
 
 Buttons used to control the game are as follows:
