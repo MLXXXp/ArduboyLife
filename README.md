@@ -25,7 +25,7 @@ Buttons used to control the game are as follows:
 Button    | Function
 ------    | --------
 A         | Pause. If already paused, step once to the next generation
-B         | Run at the current speed
+B         | Run at the current speed. Pause while held, to view info
 Right     | Start a new game
 Left      | Restart with the same initial pattern
 Up        | Increase the speed
