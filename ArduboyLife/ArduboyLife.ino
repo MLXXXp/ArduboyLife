@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <Arduboy2.h>
 #include <ArduboyTones.h>
+#include <limits.h>
 
 // Width and height of the screen in pixels (one pixel per cell)
 #define LIFEWIDTH WIDTH
