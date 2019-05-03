@@ -30,7 +30,7 @@ When first started, an introduction screen appears for a few seconds, then a hel
 
 In addition to performing their assigned functions, all buttons will cause status information to be displayed while held. This includes the speed, number of live cells, the step (generation) number, whether the game is running or paused, and whether sound is on or off.
 
-###Sound
+### Sound
 
 If sound is enabled, a tone will be generated that is proportional to the number of live cells currently on the grid. The more cells exist, the higher the frequency of the tone. Each tone is generated for a fixed duration of a few seconds or until a different tone starts. If a new cell count equals the previous one, the tone is not restarted. Therefore, sound will time out and stop if the game gets to a state where the number of cells doesn't change from one step to the next. A tone will also time out when the game is paused or if a button is held down long enough.
 
@@ -41,7 +41,7 @@ If sound is enabled, a tone will be generated that is proportional to the number
 
 ## License
 
-Copyright (c) 2017 Scott Allen
+Copyright (c) 2015-2019 Scott Allen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
