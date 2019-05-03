@@ -108,7 +108,7 @@ void loop() {
       break;
 
     case BTN_NEW:
-      randSeed = random(LONG_MIN, LONG_MAX) + millis();
+      randSeed = random(LONG_MAX) + millis();
       newGame(BTN_NEW);
       break;
 
