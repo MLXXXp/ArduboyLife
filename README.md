@@ -43,7 +43,6 @@ If sound is enabled, a tone will be generated that is proportional to the number
 ## Required Libraries
 
 [Arduboy2](https://github.com/MLXXXp/Arduboy2)
-[ArduboyTones](https://github.com/MLXXXp/ArduboyTones)
 
 ## License
 

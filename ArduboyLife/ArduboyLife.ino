@@ -25,7 +25,6 @@ THE SOFTWARE.
 */
 
 #include <Arduboy2.h>
-#include <ArduboyTones.h>
 #include <limits.h>
 
 // Width and height of the screen in pixels (one pixel per cell)
@@ -40,32 +39,37 @@ THE SOFTWARE.
 #define BTN_PAUSE A_BUTTON
 #define BTN_RUN B_BUTTON
 
-const int debounceWait = 50; // delay for button debounce
+constexpr unsigned long toneDuration = 2100; // max tone duration in ms
+
+constexpr int debounceWait = 50; // delay for button debounce
 
 // Pointer to the screen buffer as a two dimensional array,
 // the way the Life engine wants it.
 static uint8_t (*grid)[LIFEWIDTH];
 
 unsigned long stepCount = 0;
-boolean paused = false;
+bool paused = false;
 
 unsigned int liveCells;
 
 unsigned int speedDly = 64;
 unsigned char speedNum = 6;
 
-unsigned int lastTone = 0;
+unsigned long toneStartTime;
+bool tonePlaying = false;
+uint16_t lastToneCount = 0;
 
 long randSeed = 42; // The answer to life, the universe and everything...
 
 Arduboy2 arduboy;
-ArduboyTones sound(arduboy.audio.enabled);
+BeepPin1 beep;
 
 unsigned int lifeIterate(uint8_t grid[][LIFEWIDTH]);
 
 void setup() {
   arduboy.begin();
   arduboy.audio.off();
+  beep.begin();
   arduboy.clear();
   grid = (uint8_t (*)[LIFEWIDTH]) arduboy.getBuffer();
 
@@ -98,6 +102,8 @@ void setup() {
 }
 
 void loop() {
+  toneTimer();
+
   switch (arduboy.buttonsState()) {
     case BTN_PAUSE:
       pauseGame();
@@ -228,7 +234,7 @@ void genGrid(long seed) {
   stepCount = 0;
   liveCells = countCells();
   if (arduboy.audio.enabled()) {
-    lastTone = 0;
+    lastToneCount = 0;
     playTone();
   }
 }
@@ -333,11 +339,22 @@ unsigned int countCells() {
 // Play a tone with a frequency based on the number of live cells.
 // The more cells, the higher the pitch.
 void playTone() {
-  unsigned int newTone;
+  uint16_t newToneCount;
 
-  if ((newTone = (liveCells * 3 + 20)) != lastTone) {
-    sound.tone(newTone, 2100);
-    lastTone = newTone;
+  if ((newToneCount = (uint16_t)(1000000L / (liveCells * 3 + 20)) - 1) !=
+      lastToneCount) {
+    beep.tone(newToneCount);
+    lastToneCount = newToneCount;
+    toneStartTime = millis();
+    tonePlaying = true;
+  }
+}
+
+// Stop a playing tone if the maximum duration has elapsed
+void toneTimer() {
+  if (tonePlaying && (millis() - toneStartTime >= toneDuration)) {
+    beep.noTone();
+    tonePlaying = false;
   }
 }
 
@@ -349,16 +366,17 @@ void playTone() {
 // In this case another call to this function is required
 // to wait for both buttons to be released.
 // Otherwise, return true.
-boolean waitRelease(uint8_t button) {
+bool waitRelease(uint8_t button) {
   showInfo();
-  delay(debounceWait);
+  arduboy.delayShort(debounceWait);
   while (arduboy.notPressed(button) == false) {
     if (((button == BTN_SLOWER) || (button == BTN_FASTER)) &&
          arduboy.pressed(BTN_SLOWER + BTN_FASTER)) {
       return false;
     }
+    toneTimer();
   }
-  delay(debounceWait);
+  arduboy.delayShort(debounceWait);
   arduboy.display();
   return true;
 }
