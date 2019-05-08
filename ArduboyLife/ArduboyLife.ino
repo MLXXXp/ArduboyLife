@@ -2,6 +2,8 @@
 // Conway's Game Of Life for the Arduboy
 // -------------------------------------
 
+// Version 2.0
+
 /*
 Copyright (c) 2015-2019 Scott Allen
 
