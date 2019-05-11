@@ -4,7 +4,7 @@ By Scott Allen
 
 ## Description
 
-An implementation of Conway's Game of Life, a cellular automation, for the [Arduboy](https://www.arduboy.com/), a tiny Arduino compatible game system.
+An implementation of Conway's Game of Life, a cellular automaton, for the [Arduboy](https://www.arduboy.com/), a tiny Arduino compatible game system.
 
 [Conway's Life on Wikipedia](https://en.wikipedia.org/wiki/Conway's_Game_of_Life)
 
